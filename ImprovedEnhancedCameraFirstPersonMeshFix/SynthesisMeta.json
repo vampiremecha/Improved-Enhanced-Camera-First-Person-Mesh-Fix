@@ -1,0 +1,16 @@
+{
+  "Nickname": "ImprovedEnhancedCameraFirstPersonMeshFix",
+  "Visibility": "Visible",
+  "OneLineDescription": "Generates valid first person mesh path for armors",
+  "LongDescription": "Generates valid first person mesh path for armors.\nTypically seen in modded armor plugins used with improved/enhanced camera, the main sign is seeing two of your body twice in first person. See README for more info.",
+  "PreferredAutoVersioning": "Default",
+  "RequiredMods": [],
+  "TargetedReleases": [
+    "SkyrimLE",
+    "SkyrimSE",
+    "SkyrimVR",
+    "EnderalLE",
+    "EnderalSE",
+    "SkyrimSEGog"
+  ]
+}
