@@ -2,7 +2,10 @@
 Synthesis patcher to automate simple fix to "double body" issue with Improved/Enhanced Camera mods for Skyrim/SE/AE.
 
 # How to use/settings
-Put into a new Synthesis group. Run it.
+Put into a new Synthesis group. Run it. You may need to make two groups with two instances of this patcher (or more) depending on how many mods you have, due to plugins having a maximum number of masters.
+
+![image](https://github.com/vampiremecha/Improved-Enhanced-Camera-First-Person-Mesh-Fix/assets/137844469/41916b4d-0fac-43ee-81c7-4e5af7d38c48)
+
 
 ## Settings
 
@@ -16,6 +19,13 @@ Put into a new Synthesis group. Run it.
 A very specific edge case can occur when using Improved/Enhanced Camera, where a second body is seen while in first-person, typically when using first-person arms with third-person body. Technically, the body would still be seen even if Improved/Enhanced Camera wasn't installed. 
 
 Why this is happening is due to a Bethesda default engine behavior, where if in the plugin the armor addon does not have a valid filepath for the first-person filepath set, the engine will set the first-person to be the same as the third-person mesh. A xedit patcher for Joy of Perspective I saw worked by setting every armor's first-person mesh to blank, to take advantage of this engine behavior. The other source of this issue is when mod authors set the first-person mesh to be the same as the world mesh.
+
+<details> 
+  <summary>Example of issue (warning: boobs) </summary>
+ 
+   ![image](https://github.com/vampiremecha/Improved-Enhanced-Camera-First-Person-Mesh-Fix/assets/137844469/01f03005-a809-44f6-931b-a161e1608ef8)
+</details>
+
 
 # How this patcher works
 Just a bunch of if conditions to check if the first-person filepath is valid and not the same as the third-person filepath. If not, it puts a valid filepath in, in this case "actors\character\character assets\1stpersonfemalebody_1.nif" or "actors\character\character assets\1stpersonmalebody_1.nif" as these are vanilla Bethesda mesh filepaths. 
