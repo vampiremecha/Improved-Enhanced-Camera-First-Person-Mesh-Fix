@@ -4,6 +4,7 @@ using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Plugins.Records;
 using ImprovedEnhancedCameraFirstPersonMeshFix.Settings;
 using System.Text.RegularExpressions;
+using Mutagen.Bethesda.Plugins.Exceptions;
 
 namespace ImprovedEnhancedCameraFirstPersonMeshFix;
 
@@ -30,68 +31,74 @@ public class Program
 
         foreach (var armorAddonGetterContext in state.LoadOrder.PriorityOrder.ArmorAddon().WinningContextOverrides())
         {
-            var armorAddonGetter = armorAddonGetterContext.Record;
-            //skip invalid
-            string addon = armorAddonGetter.FormKey.ModKey.ToString().ToLower();
-            addon = new Regex("[^a-z0-9]").Replace(addon, "");
-            if (regexSources == "" || !Regex.IsMatch(addon, @"^" + regexSources + ".*"))
+            try
             {
-                continue;
-            }
-
-            if (excludedSources.Contains(armorAddonGetter.FormKey.ModKey))
-            {
-                continue;
-            }
-
-            if (includedSources.Count > 0 && !includedSources.Contains(armorAddonGetter.FormKey.ModKey))
-            {
-                continue;
-            }
-
-            if (armorAddonGetter == null) continue;
-            if (armorAddonGetter.BodyTemplate == null) continue;
-
-            // add or refactor for non-playable armor check (may need to loop through armor records first
-
-            if (armorAddonGetter.BodyTemplate.FirstPersonFlags.HasFlag(IntToSlot(32)))
-            {
-                var femaleWorldModel = armorAddonGetter.WorldModel!.Female;
-                var maleWorldModel = armorAddonGetter.WorldModel!.Male;
-                if ((femaleFirstPerson || maleFirstPerson) && (armorAddonGetter.FirstPersonModel == null ||
-                                                               armorAddonGetter.FirstPersonModel.Female == null || 
-                                                               string.IsNullOrWhiteSpace(armorAddonGetter.FirstPersonModel.Female.File.DataRelativePath.Path.ToLower()) || 
-                                                               (femaleWorldModel != null && armorAddonGetter.FirstPersonModel!.Female.File.DataRelativePath.Path.ToLower() == femaleWorldModel.File.DataRelativePath.Path.ToLower()) ||
-                                                               armorAddonGetter.FirstPersonModel!.Male == null ||
-                                                               !string.IsNullOrWhiteSpace(armorAddonGetter.FirstPersonModel.Female.File.DataRelativePath.Path.ToLower()) ||
-                                                               (maleWorldModel != null && armorAddonGetter.FirstPersonModel!.Male.File.DataRelativePath.Path.ToLower() == maleWorldModel.File.DataRelativePath.Path.ToLower())))
+                var armorAddonGetter = armorAddonGetterContext.Record;
+                //skip invalid
+                string addon = armorAddonGetter.FormKey.ModKey.ToString().ToLower();
+                addon = new Regex("[^a-z0-9]").Replace(addon, "");
+                if (regexSources == "" || !Regex.IsMatch(addon, @"^" + regexSources + ".*"))
                 {
-                    var aaNew = state.
-                        PatchMod.
-                        ArmorAddons.
-                        GetOrAddAsOverride(armorAddonGetter);
-                    if (aaNew.FirstPersonModel == null)
+                    continue;
+                }
+
+                if (excludedSources.Contains(armorAddonGetter.FormKey.ModKey))
+                {
+                    continue;
+                }
+
+                if (includedSources.Count > 0 && !includedSources.Contains(armorAddonGetter.FormKey.ModKey))
+                {
+                    continue;
+                }
+
+                if (armorAddonGetter == null) continue;
+                if (armorAddonGetter.BodyTemplate == null) continue;
+
+                // add or refactor for non-playable armor check (may need to loop through armor records first
+
+                if (armorAddonGetter.BodyTemplate.FirstPersonFlags.HasFlag(IntToSlot(32)))
+                {
+                    var femaleWorldModel = armorAddonGetter.WorldModel!.Female;
+                    var maleWorldModel = armorAddonGetter.WorldModel!.Male;
+                    if ((femaleFirstPerson || maleFirstPerson) && (armorAddonGetter.FirstPersonModel == null ||
+                                                                   armorAddonGetter.FirstPersonModel.Female == null || 
+                                                                   string.IsNullOrWhiteSpace(armorAddonGetter.FirstPersonModel.Female.File.DataRelativePath.Path.ToLower()) || 
+                                                                   (femaleWorldModel != null && armorAddonGetter.FirstPersonModel!.Female.File.DataRelativePath.Path.ToLower() == femaleWorldModel.File.DataRelativePath.Path.ToLower()) ||
+                                                                   armorAddonGetter.FirstPersonModel!.Male == null ||
+                                                                   !string.IsNullOrWhiteSpace(armorAddonGetter.FirstPersonModel.Female.File.DataRelativePath.Path.ToLower()) ||
+                                                                   (maleWorldModel != null && armorAddonGetter.FirstPersonModel!.Male.File.DataRelativePath.Path.ToLower() == maleWorldModel.File.DataRelativePath.Path.ToLower())))
                     {
-#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
-                        aaNew.FirstPersonModel = new GenderedItem<Model>(female: new Model() { File = @"actors\character\character assets\1stpersonfemalebody_1.nif" }, male: new Model() { File = @"actors\character\character assets\1stpersonmalebody_1.nif" });
-#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
-                    }
-                    if (femaleFirstPerson == true && 
-                        (aaNew.FirstPersonModel.Female == null || string.IsNullOrWhiteSpace(aaNew.FirstPersonModel.Female.File.DataRelativePath.Path.ToLower()) ||
-                         (femaleWorldModel != null && aaNew.FirstPersonModel!.Female.File.DataRelativePath.Path.ToLower() == femaleWorldModel.File.DataRelativePath.Path.ToLower())))
-                    {
-                        aaNew.FirstPersonModel.Female = new Model() { File = @"actors\character\character assets\1stpersonfemalebody_1.nif", AlternateTextures = aaNew.FirstPersonModel.Female?.AlternateTextures };
-                    }
-                    if (maleFirstPerson == true && 
-                        (aaNew.FirstPersonModel!.Male == null || !string.IsNullOrWhiteSpace(aaNew.FirstPersonModel.Male.File.DataRelativePath.Path.ToLower()) || 
-                         (maleWorldModel != null && aaNew.FirstPersonModel!.Male.File.DataRelativePath.Path.ToLower() == maleWorldModel.File.DataRelativePath.Path.ToLower())))
-                    {
-                        aaNew.FirstPersonModel.Male = new Model() { File = @"actors\character\character assets\1stpersonmalebody_1.nif", AlternateTextures = aaNew.FirstPersonModel.Male?.AlternateTextures };
+                        var aaNew = state.
+                            PatchMod.
+                            ArmorAddons.
+                            GetOrAddAsOverride(armorAddonGetter);
+                        if (aaNew.FirstPersonModel == null)
+                        {
+    #pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
+                            aaNew.FirstPersonModel = new GenderedItem<Model>(female: new Model() { File = @"actors\character\character assets\1stpersonfemalebody_1.nif" }, male: new Model() { File = @"actors\character\character assets\1stpersonmalebody_1.nif" });
+    #pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
+                        }
+                        if (femaleFirstPerson == true && 
+                            (aaNew.FirstPersonModel.Female == null || string.IsNullOrWhiteSpace(aaNew.FirstPersonModel.Female.File.DataRelativePath.Path.ToLower()) ||
+                             (femaleWorldModel != null && aaNew.FirstPersonModel!.Female.File.DataRelativePath.Path.ToLower() == femaleWorldModel.File.DataRelativePath.Path.ToLower())))
+                        {
+                            aaNew.FirstPersonModel.Female = new Model() { File = @"actors\character\character assets\1stpersonfemalebody_1.nif", AlternateTextures = aaNew.FirstPersonModel.Female?.AlternateTextures };
+                        }
+                        if (maleFirstPerson == true && 
+                            (aaNew.FirstPersonModel!.Male == null || !string.IsNullOrWhiteSpace(aaNew.FirstPersonModel.Male.File.DataRelativePath.Path.ToLower()) || 
+                             (maleWorldModel != null && aaNew.FirstPersonModel!.Male.File.DataRelativePath.Path.ToLower() == maleWorldModel.File.DataRelativePath.Path.ToLower())))
+                        {
+                            aaNew.FirstPersonModel.Male = new Model() { File = @"actors\character\character assets\1stpersonmalebody_1.nif", AlternateTextures = aaNew.FirstPersonModel.Male?.AlternateTextures };
+                        }
                     }
                 }
             }
+            catch (Exception e)
+            {
+                throw RecordException.Enrich(e, armorAddonGetterContext);
+            }
         }
-
     }
 
     public static BipedObjectFlag IntToSlot(int iFlag)
