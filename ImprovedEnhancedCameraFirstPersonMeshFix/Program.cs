@@ -63,11 +63,11 @@ public class Program
                     var maleWorldModel = armorAddonGetter.WorldModel.Male;
                     if ((femaleFirstPerson || maleFirstPerson) && (armorAddonGetter.FirstPersonModel == null ||
                                                                    armorAddonGetter.FirstPersonModel.Female == null || 
-                                                                   string.IsNullOrWhiteSpace(armorAddonGetter.FirstPersonModel.Female.File.DataRelativePath.Path.ToLower()) || 
-                                                                   (femaleWorldModel != null && armorAddonGetter.FirstPersonModel!.Female.File.DataRelativePath.Path.ToLower() == femaleWorldModel.File.DataRelativePath.Path.ToLower()) ||
-                                                                   armorAddonGetter.FirstPersonModel!.Male == null ||
-                                                                   !string.IsNullOrWhiteSpace(armorAddonGetter.FirstPersonModel.Female.File.DataRelativePath.Path.ToLower()) ||
-                                                                   (maleWorldModel != null && armorAddonGetter.FirstPersonModel!.Male.File.DataRelativePath.Path.ToLower() == maleWorldModel.File.DataRelativePath.Path.ToLower())))
+                                                                   armorAddonGetter.FirstPersonModel.Female.File.DataRelativePath.IsNull || 
+                                                                   (femaleWorldModel != null && armorAddonGetter.FirstPersonModel.Female.File.DataRelativePath == femaleWorldModel.File.DataRelativePath) ||
+                                                                   armorAddonGetter.FirstPersonModel.Male == null ||
+                                                                   !armorAddonGetter.FirstPersonModel.Female.File.DataRelativePath.IsNull ||
+                                                                   (maleWorldModel != null && armorAddonGetter.FirstPersonModel.Male.File.DataRelativePath == maleWorldModel.File.DataRelativePath)))
                     {
                         var aaNew = state.PatchMod.ArmorAddons.GetOrAddAsOverride(armorAddonGetter);
                         
@@ -83,17 +83,25 @@ public class Program
                                     File = @"actors\character\character assets\1stpersonmalebody_1.nif"
                                 });
                         }
-                        if (femaleFirstPerson == true && 
-                            (aaNew.FirstPersonModel.Female == null || string.IsNullOrWhiteSpace(aaNew.FirstPersonModel.Female.File.DataRelativePath.Path.ToLower()) ||
-                             (femaleWorldModel != null && aaNew.FirstPersonModel!.Female.File.DataRelativePath.Path.ToLower() == femaleWorldModel.File.DataRelativePath.Path.ToLower())))
+                        if (femaleFirstPerson && 
+                            (aaNew.FirstPersonModel.Female == null || aaNew.FirstPersonModel.Female.File.DataRelativePath.IsNull ||
+                             (femaleWorldModel != null && aaNew.FirstPersonModel.Female.File.DataRelativePath == femaleWorldModel.File.DataRelativePath)))
                         {
-                            aaNew.FirstPersonModel.Female = new Model() { File = @"actors\character\character assets\1stpersonfemalebody_1.nif", AlternateTextures = aaNew.FirstPersonModel.Female?.AlternateTextures };
+                            aaNew.FirstPersonModel.Female = new Model()
+                            {
+                                File = @"actors\character\character assets\1stpersonfemalebody_1.nif", 
+                                AlternateTextures = aaNew.FirstPersonModel.Female?.AlternateTextures
+                            };
                         }
-                        if (maleFirstPerson == true && 
-                            (aaNew.FirstPersonModel!.Male == null || !string.IsNullOrWhiteSpace(aaNew.FirstPersonModel.Male.File.DataRelativePath.Path.ToLower()) || 
-                             (maleWorldModel != null && aaNew.FirstPersonModel!.Male.File.DataRelativePath.Path.ToLower() == maleWorldModel.File.DataRelativePath.Path.ToLower())))
+                        if (maleFirstPerson && 
+                            (aaNew.FirstPersonModel.Male == null || !aaNew.FirstPersonModel.Male.File.DataRelativePath.IsNull || 
+                             (maleWorldModel != null && aaNew.FirstPersonModel.Male.File.DataRelativePath == maleWorldModel.File.DataRelativePath)))
                         {
-                            aaNew.FirstPersonModel.Male = new Model() { File = @"actors\character\character assets\1stpersonmalebody_1.nif", AlternateTextures = aaNew.FirstPersonModel.Male?.AlternateTextures };
+                            aaNew.FirstPersonModel.Male = new Model()
+                            {
+                                File = @"actors\character\character assets\1stpersonmalebody_1.nif", 
+                                AlternateTextures = aaNew.FirstPersonModel.Male?.AlternateTextures
+                            };
                         }
                     }
                 }
