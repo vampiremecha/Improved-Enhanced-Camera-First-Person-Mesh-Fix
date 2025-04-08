@@ -52,15 +52,15 @@ public class Program
                     continue;
                 }
 
-                if (armorAddonGetter == null) continue;
+                if (armorAddonGetter.WorldModel == null) continue;
                 if (armorAddonGetter.BodyTemplate == null) continue;
 
                 // add or refactor for non-playable armor check (may need to loop through armor records first
 
                 if (armorAddonGetter.BodyTemplate.FirstPersonFlags.HasFlag(IntToSlot(32)))
                 {
-                    var femaleWorldModel = armorAddonGetter.WorldModel!.Female;
-                    var maleWorldModel = armorAddonGetter.WorldModel!.Male;
+                    var femaleWorldModel = armorAddonGetter.WorldModel.Female;
+                    var maleWorldModel = armorAddonGetter.WorldModel.Male;
                     if ((femaleFirstPerson || maleFirstPerson) && (armorAddonGetter.FirstPersonModel == null ||
                                                                    armorAddonGetter.FirstPersonModel.Female == null || 
                                                                    string.IsNullOrWhiteSpace(armorAddonGetter.FirstPersonModel.Female.File.DataRelativePath.Path.ToLower()) || 
@@ -69,15 +69,19 @@ public class Program
                                                                    !string.IsNullOrWhiteSpace(armorAddonGetter.FirstPersonModel.Female.File.DataRelativePath.Path.ToLower()) ||
                                                                    (maleWorldModel != null && armorAddonGetter.FirstPersonModel!.Male.File.DataRelativePath.Path.ToLower() == maleWorldModel.File.DataRelativePath.Path.ToLower())))
                     {
-                        var aaNew = state.
-                            PatchMod.
-                            ArmorAddons.
-                            GetOrAddAsOverride(armorAddonGetter);
+                        var aaNew = state.PatchMod.ArmorAddons.GetOrAddAsOverride(armorAddonGetter);
+                        
                         if (aaNew.FirstPersonModel == null)
                         {
-    #pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
-                            aaNew.FirstPersonModel = new GenderedItem<Model>(female: new Model() { File = @"actors\character\character assets\1stpersonfemalebody_1.nif" }, male: new Model() { File = @"actors\character\character assets\1stpersonmalebody_1.nif" });
-    #pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
+                            aaNew.FirstPersonModel = new GenderedItem<Model?>(
+                                female: new Model()
+                                {
+                                    File = @"actors\character\character assets\1stpersonfemalebody_1.nif"
+                                }, 
+                                male: new Model()
+                                {
+                                    File = @"actors\character\character assets\1stpersonmalebody_1.nif"
+                                });
                         }
                         if (femaleFirstPerson == true && 
                             (aaNew.FirstPersonModel.Female == null || string.IsNullOrWhiteSpace(aaNew.FirstPersonModel.Female.File.DataRelativePath.Path.ToLower()) ||
